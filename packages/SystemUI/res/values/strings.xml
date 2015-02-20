@@ -911,4 +911,14 @@
 
     <!-- Accessibility string for current zen mode and selected exit condition. A template that simply concatenates existing mode string and the current condition description. [CHAR LIMIT=20] -->
     <string name="zen_mode_and_condition"><xliff:g id="zen_mode" example="Priority interruptions only">%1$s</xliff:g>. <xliff:g id="exit_condition" example="For one hour">%2$s</xliff:g></string>
+<<<<<<< HEAD
+=======
+
+    <!-- Power Button for Navbar -->
+    <string name="navbar_power_button">Power button</string>
+
+    <!-- NavBar tile -->
+    <string name="quick_settings_navbar_on">NavBar On</string>
+    <string name="quick_settings_navbar_off">NavBar Off</string>
+>>>>>>> 2d42f04... NavBar tile [1/3]
 </resources>

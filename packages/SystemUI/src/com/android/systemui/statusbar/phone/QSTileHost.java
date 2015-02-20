@@ -63,6 +63,7 @@ import com.android.systemui.qs.tiles.ScreenOffTile;
 import com.android.systemui.qs.tiles.ScreenshotTile;
 import com.android.systemui.qs.tiles.ScreenTimeoutTile;
 import com.android.systemui.qs.tiles.SyncTile;
+import com.android.systemui.qs.tiles.NavBarTile;
 import com.android.systemui.qs.tiles.WifiTile;
 import com.android.systemui.settings.CurrentUserTracker;
 import com.android.systemui.statusbar.policy.BluetoothController;
@@ -334,8 +335,13 @@ public class QSTileHost implements QSTile.Host {
                 return new BatterySaverTile(this);
             case QSConstants.TILE_SCREEN_OFF:
                 return new ScreenOffTile(this);
+<<<<<<< HEAD
             case QSConstants.TILE_EXPANDED_DESKTOP:
                 return new ExpandedDesktopTile(this);
+=======
+            case QSConstants.TILE_NAVBAR:
+                return new NavBarTile(this);
+>>>>>>> 2d42f04... NavBar tile [1/3]
             default:
                 throw new IllegalArgumentException("Bad tile spec: " + tileSpec);
         }

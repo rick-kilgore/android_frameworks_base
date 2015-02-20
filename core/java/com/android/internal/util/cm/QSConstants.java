@@ -50,7 +50,11 @@ public class QSConstants {
     public static final String TILE_BRIGHTNESS = "brightness";
     public static final String TILE_BATTERY_SAVER = "battery_saver";
     public static final String TILE_SCREEN_OFF = "screen_off";
+<<<<<<< HEAD
     public static final String TILE_EXPANDED_DESKTOP = "expanded_desktop";
+=======
+    public static final String TILE_NAVBAR = "toggleNavBar";
+>>>>>>> 2d42f04... NavBar tile [1/3]
 
     // Order matters
     protected static final ArrayList<String> TILES_DEFAULT = new ArrayList<String>();
@@ -91,6 +95,10 @@ public class QSConstants {
         TILES_AVAILABLE.add(TILE_BRIGHTNESS);
         TILES_AVAILABLE.add(TILE_BATTERY_SAVER);
         TILES_AVAILABLE.add(TILE_SCREEN_OFF);
+<<<<<<< HEAD
         TILES_AVAILABLE.add(TILE_EXPANDED_DESKTOP);
+=======
+        TILES_AVAILABLE.add(TILE_NAVBAR);
+>>>>>>> 2d42f04... NavBar tile [1/3]
     }
 }
