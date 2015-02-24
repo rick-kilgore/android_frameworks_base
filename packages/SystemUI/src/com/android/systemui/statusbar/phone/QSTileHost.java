@@ -335,13 +335,10 @@ public class QSTileHost implements QSTile.Host {
                 return new BatterySaverTile(this);
             case QSConstants.TILE_SCREEN_OFF:
                 return new ScreenOffTile(this);
-<<<<<<< HEAD
             case QSConstants.TILE_EXPANDED_DESKTOP:
                 return new ExpandedDesktopTile(this);
-=======
             case QSConstants.TILE_NAVBAR:
                 return new NavBarTile(this);
->>>>>>> 2d42f04... NavBar tile [1/3]
             default:
                 throw new IllegalArgumentException("Bad tile spec: " + tileSpec);
         }
