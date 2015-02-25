@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 
 import com.android.internal.statusbar.IStatusBarService;
+import com.android.internal.util.vanir.NavbarConstants.NavbarConstant;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 
@@ -79,12 +80,11 @@ public final class NavigationBarTransitions extends BarTransitions {
     private void applyMode(int mode, boolean animate, boolean force) {
         // apply to key buttons
         final float alpha = alphaForMode(mode);
-        setKeyButtonViewQuiescentAlpha(NavbarEditor.NAVBAR_HOME, alpha, animate);
-        setKeyButtonViewQuiescentAlpha(NavbarEditor.NAVBAR_RECENT, alpha, animate);
-        setKeyButtonViewQuiescentAlpha(NavbarEditor.NAVBAR_CONDITIONAL_MENU, alpha, animate);
-        setKeyButtonViewQuiescentAlpha(NavbarEditor.NAVBAR_ALWAYS_MENU, alpha, animate);
-        setKeyButtonViewQuiescentAlpha(NavbarEditor.NAVBAR_MENU_BIG, alpha, animate);
-        setKeyButtonViewQuiescentAlpha(mView.getImeSwitchButton(), alpha, animate);
+        View[] views = mView.getAllButtons();
+
+        for(View v : views) {
+            setKeyButtonViewQuiescentAlpha(v, alpha, animate);
+        }
 
         applyBackButtonQuiescentAlpha(mode, animate);
 
@@ -99,12 +99,12 @@ public final class NavigationBarTransitions extends BarTransitions {
 
     public void applyBackButtonQuiescentAlpha(int mode, boolean animate) {
         float backAlpha = 0;
-        backAlpha = maxVisibleQuiescentAlpha(backAlpha, NavbarEditor.NAVBAR_HOME);
-        backAlpha = maxVisibleQuiescentAlpha(backAlpha, NavbarEditor.NAVBAR_RECENT);
-        backAlpha = maxVisibleQuiescentAlpha(backAlpha, NavbarEditor.NAVBAR_MENU_BIG);
-        backAlpha = maxVisibleQuiescentAlpha(backAlpha, NavbarEditor.NAVBAR_ALWAYS_MENU);
-        backAlpha = maxVisibleQuiescentAlpha(backAlpha, NavbarEditor.NAVBAR_CONDITIONAL_MENU);
-        backAlpha = maxVisibleQuiescentAlpha(backAlpha, mView.getImeSwitchButton());
+        View[] views = mView.getAllButtons();
+
+        for(View v : views) {
+            backAlpha = maxVisibleQuiescentAlpha(backAlpha, v);
+        }
+
         if (backAlpha > 0) {
             setKeyButtonViewQuiescentAlpha(NavbarEditor.NAVBAR_BACK, backAlpha, animate);
         }
