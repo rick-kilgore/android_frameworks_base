@@ -17,62 +17,42 @@
 package com.android.systemui.statusbar.policy;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.TimeInterpolator;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.ContentObserver;
-import android.graphics.Canvas;
-import android.graphics.CanvasProperty;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.MathUtils;
 import android.view.HapticFeedbackConstants;
-import android.view.HardwareCanvas;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.RenderNodeAnimator;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
 
 import java.io.File;
 import java.lang.Math;
-import java.util.ArrayList;
 
-import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.util.vanir.KeyButtonInfo;
 import com.android.internal.util.vanir.NavbarConstants.NavbarConstant;
 import com.android.internal.util.vanir.NavbarUtils;
 import com.android.internal.util.vanir.VanirActions;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.NavbarEditor;
-import com.vanir.util.DeviceUtils;
-
-import static android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK;
-import static android.view.accessibility.AccessibilityNodeInfo.ACTION_LONG_CLICK;
 
 public class KeyButtonView extends ImageView {
     private static final String TAG = "StatusBar.KeyButtonView";
@@ -105,11 +85,11 @@ public class KeyButtonView extends ImageView {
     private float mDrawingAlpha = 1f;
     private float mQuiescentAlpha = DEFAULT_QUIESCENT_ALPHA;
     private boolean mInEditMode;
-    private AudioManager mAudioManager;
     private Animator mAnimateToQuiescent = new ObjectAnimator();
     private boolean mShouldClick = true;
     private KeyButtonRipple mRipple;
 
+    private static AudioManager mAudioManager;
     private static PowerManager mPm;
     KeyButtonInfo mActions;
 
@@ -120,10 +100,15 @@ public class KeyButtonView extends ImageView {
     private boolean mShouldTintIcons = true;
 
     public static PowerManager getPowerManagerService(Context context) {
-	if (mPm == null) mPm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-	return mPm;
+        if (mPm == null) mPm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        return mPm;
     }
- 
+
+    public static AudioManager getAudioManagerService(Context context) {
+        if (mAudioManager == null) mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        return mAudioManager;
+    }
+
     Runnable mCheckLongPress = new Runnable() {
         public void run() {
             if (isPressed()) {
@@ -154,9 +139,9 @@ public class KeyButtonView extends ImageView {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mLongPressTimeout = ViewConfiguration.getLongPressTimeout();
         setLongClickable(false);
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        setBackground(new KeyButtonRipple(context, this));
+        mAudioManager = getAudioManagerService(context);
         mPm = getPowerManagerService(context);
+        setBackgroundDrawable(mRipple = new KeyButtonRipple(context, this));
     }
 
     public void setButtonActions(KeyButtonInfo actions) {
@@ -199,7 +184,7 @@ public class KeyButtonView extends ImageView {
                 setImageDrawable(new BitmapDrawable(res, f.getAbsolutePath()));
             }
         } else if (mActions.singleAction != null) {
-            setImageDrawable(NavbarUtils.getIconImage(mContext, mActions.singleAction));
+            setImageDrawable(NavbarUtils.getIconImage(getContext(), mActions.singleAction));
         } else {
             setImageResource(R.drawable.ic_sysbar_null);
         }
@@ -283,10 +268,6 @@ public class KeyButtonView extends ImageView {
         }
     }
 
-    private boolean supportsLongPress() {
-        return mSupportsLongpress && getTag() != NavbarEditor.NAVBAR_HOME;
-    }
-
     public boolean onTouchEvent(MotionEvent ev) {
         if (mInEditMode) {
             return false;
@@ -299,6 +280,8 @@ public class KeyButtonView extends ImageView {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                mDownTime = SystemClock.uptimeMillis();
+                setPressed(true);
                 //Log.d("KeyButtonView", "press");
                 if (mHasSingleAction) {
                     removeCallbacks(mSingleTap);
@@ -338,7 +321,7 @@ public class KeyButtonView extends ImageView {
                 // hack to fix ripple getting stuck. exitHardware() starts an animation,
                 // but sometimes does not finish it.
                 mRipple.exitSoftware();
-		if (mIsDPadAction) {
+                if (mIsDPadAction) {
                     mShouldClick = true;
                     removeCallbacks(mDPadKeyRepeater);
                 }

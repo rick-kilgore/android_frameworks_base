@@ -19,7 +19,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- Vanir Action Stuff-->
-    <string name="action_null">Blank</string>
+    <!-- string name="action_null">Blank</string -->
     <string name="action_home">Default: Home</string>
     <string name="action_back">Default: Back</string>
     <string name="action_recents">Default: Recents</string>

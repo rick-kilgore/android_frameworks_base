@@ -16,8 +16,6 @@
 
 package com.android.systemui.statusbar.phone;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
 import android.animation.LayoutTransition.TransitionListener;
 import android.animation.ObjectAnimator;
@@ -26,15 +24,12 @@ import android.animation.ValueAnimator;
 import android.app.StatusBarManager;
 import android.content.ContentResolver;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
-import android.database.ContentObserver;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -42,7 +37,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
 import android.os.UserHandle;
-import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -82,10 +76,9 @@ public class NavigationBarView extends LinearLayout {
 
     // slippery nav bar when everything is disabled, e.g. during setup
     final static boolean SLIPPERY_WHEN_DISABLED = true;
-
-    final static String NAVBAR_EDIT_ACTION = "android.intent.action.NAVBAR_EDIT";
     final static boolean NAVBAR_ALWAYS_AT_RIGHT = true;
 
+    final static String NAVBAR_EDIT_ACTION = "android.intent.action.NAVBAR_EDIT";
 
     private boolean mInEditMode;
     private NavbarEditor mEditBar;
@@ -142,7 +135,6 @@ public class NavigationBarView extends LinearLayout {
     private boolean mIsLayoutRtl;
     private boolean mDelegateIntercepted;
 
-    private SettingsObserver mSettingsObserver;
     private boolean mShowDpadArrowKeys;
 
     // Navigation bar customizations
@@ -288,22 +280,6 @@ public class NavigationBarView extends LinearLayout {
         mBarTransitions = new NavigationBarTransitions(this);
 
         mNavBarReceiver = new NavBarReceiver();
-        mSettingsObserver = new SettingsObserver(new Handler());
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        mSettingsObserver.observe();
-        mContext.registerReceiverAsUser(mNavBarReceiver, UserHandle.ALL,
-                new IntentFilter(NAVBAR_EDIT_ACTION), null, null);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        mSettingsObserver.unobserve();
-        mContext.unregisterReceiver(mNavBarReceiver);
     }
 
     public BarTransitions getBarTransitions() {
@@ -378,39 +354,43 @@ public class NavigationBarView extends LinearLayout {
     }
 
     public View getRecentsButton() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_RECENTS.value());
+        return getButtonView(NavbarConstant.ACTION_RECENTS.value());
     }
 
     public View getLeftLayoutButton() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_LAYOUT_LEFT.value());
+        return getButtonView(NavbarConstant.ACTION_LAYOUT_LEFT.value());
     }
 
     public View getRightLayoutButton() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_LAYOUT_RIGHT.value());
+        return getButtonView(NavbarConstant.ACTION_LAYOUT_RIGHT.value());
     }
 
     public View getMenuButton() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_MENU.value());
+        return getButtonView(NavbarConstant.ACTION_MENU.value());
     }
 
     public View getBackButton() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_BACK.value());
+        return getButtonView(NavbarConstant.ACTION_BACK.value());
     }
 
     public View getEmptySpace() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_BLANK.value());
+        return getButtonView(NavbarConstant.ACTION_BLANK.value());
     }
 
     public View getHomeButton() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_HOME.value());
+        return getButtonView(NavbarConstant.ACTION_HOME.value());
     }
 
     public View getImeSwitchButton() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_IME.value());
+        return getButtonView(NavbarConstant.ACTION_IME.value());
     }
 
     public View getImeLayoutChanger() {
-        return mCurrentView.findViewWithTag(NavbarConstant.ACTION_IME_LAYOUT.value());
+        return getButtonView(NavbarConstant.ACTION_IME_LAYOUT.value());
+    }
+
+    public View getButtonView(String constant) {
+        return mCurrentView.findViewWithTag(constant);
     }
 
     private void getIcons(Resources res) {
@@ -521,10 +501,6 @@ public class NavigationBarView extends LinearLayout {
 
         ((ImageView)getHomeButton()).setImageDrawable(mVertical ? mHomeLandIcon : mHomeIcon);
 
-        final boolean showImeButton = ((hints & StatusBarManager.NAVIGATION_HINT_IME_SHOWN) != 0)
-                && !mShowDpadArrowKeys;
-        getImeSwitchButton().setVisibility(showImeButton ? View.VISIBLE : View.INVISIBLE);
-
         if (mShowDpadArrowKeys) { // overrides IME button
             final boolean showingIme = ((mNavigationIconHints
                     & StatusBarManager.NAVIGATION_HINT_BACK_ALT) != 0);
@@ -607,7 +583,7 @@ public class NavigationBarView extends LinearLayout {
 
         mDisabledFlags = disabledFlags;
 
-        if (mAllButtonContainers.get(mCurrentLayout).size() == 0) return; // no buttons yet!
+        if (getCurrentButtonArray().isEmpty()) return; // no buttons yet!
 
         final boolean disableHome = ((disabledFlags & View.STATUS_BAR_DISABLE_HOME) != 0);
         final boolean disableRecent = ((disabledFlags & View.STATUS_BAR_DISABLE_RECENT) != 0);
@@ -654,12 +630,9 @@ public class NavigationBarView extends LinearLayout {
             }
         }
 
-        if (getButtonView(ACTION_BACK) != null)
-                getButtonView(ACTION_BACK)   .setVisibility(disableBack       ? View.INVISIBLE : View.VISIBLE);
-        if (getButtonView(ACTION_HOME) != null)
-                getButtonView(ACTION_HOME)   .setVisibility(disableHome       ? View.INVISIBLE : View.VISIBLE);
-        if (getButtonView(ACTION_RECENTS) != null)
-                getButtonView(ACTION_RECENTS).setVisibility(disableRecent     ? View.INVISIBLE : View.VISIBLE);
+        if (getBackButton() != null) getBackButton()   .setVisibility(disableBack       ? View.INVISIBLE : View.VISIBLE);
+        if (getHomeButton() != null) getHomeButton()   .setVisibility(disableHome       ? View.INVISIBLE : View.VISIBLE);
+        if (getRecentsButton() != null) getRecentsButton().setVisibility(disableRecent     ? View.INVISIBLE : View.VISIBLE);
 
         mBarTransitions.applyBackButtonQuiescentAlpha(mBarTransitions.getMode(), true /*animate*/);
 
@@ -723,31 +696,40 @@ public class NavigationBarView extends LinearLayout {
 
         if (mLegacyMenu && !showingIME) {
             if (mButtonLayouts != 1) {
-                if (attachedToLayoutButtonView(ACTION_LAYOUT_RIGHT) != null) {
-                    ((LayoutChangerButtonView) getButtonView(ACTION_LAYOUT_RIGHT)).setMenuAction(
+                if (getRightLayoutButton() != null) {
+                    ((LayoutChangerButtonView) getRightLayoutButton()).setMenuAction(
                             shouldShow, getResources().getConfiguration().orientation, mTablet);
-                } else if (attachedToLayoutButtonView(ACTION_MENU) != null) {
-                    ((LayoutChangerButtonView) getButtonView(ACTION_MENU)).setMenuAction(
+                } else if (getMenuButton() != null) {
+                    ((LayoutChangerButtonView) getMenuButton()).setMenuAction(
                             shouldShow, getResources().getConfiguration().orientation, mTablet);
                 }
             } else {
-                if (!mImeLayout && (getButtonView(ACTION_MENU) != null)) setVisibleOrInvisible(getButtonView(ACTION_MENU), mShowMenu);
+                if (!mImeLayout && (getButtonView(NavbarConstant.ACTION_MENU.value()) != null)) {
+                    setVisibleOrInvisible(getButtonView(NavbarConstant.ACTION_MENU.value()), mShowMenu);
+                }
             }
         }
     }
 
     @Override
     public void onFinishInflate() {
-        mRotatedViews[Configuration.ORIENTATION_PORTRAIT] = findViewById(R.id.rot0);
-        mRotatedViews[Configuration.ORIENTATION_LANDSCAPE] = findViewById(R.id.rot90);
+        mRotatedViews[Surface.ROTATION_0] =
+                mRotatedViews[Surface.ROTATION_180] = findViewById(R.id.rot0);
+ 
+        mRotatedViews[Surface.ROTATION_90] = findViewById(R.id.rot90);
+ 
+        mRotatedViews[Surface.ROTATION_270] = NAVBAR_ALWAYS_AT_RIGHT
+                ? findViewById(R.id.rot90)
+                : findViewById(R.id.rot270);
+
         mCurrentView = mRotatedViews[mContext.getResources().getConfiguration().orientation];
 
-        getImeSwitchButton().setOnClickListener(mImeSwitcherClickListener);
-
         updateRTLOrder();
+        loadButtonArrays();
+        setDisabledFlags(mDisabledFlags);
     }
 
-   @Override
+    @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
@@ -989,11 +971,13 @@ public class NavigationBarView extends LinearLayout {
     }
 
     public void reorient() {
-        int orientation = mContext.getResources().getConfiguration().orientation;
-        mRotatedViews[Configuration.ORIENTATION_PORTRAIT].setVisibility(View.GONE);
-        mRotatedViews[Configuration.ORIENTATION_LANDSCAPE].setVisibility(View.GONE);
-        mCurrentView = mRotatedViews[orientation];
+        final int rot = mDisplay.getRotation();
+        for (int i=0; i<4; i++) {
+            mRotatedViews[i].setVisibility(View.GONE);
+        }
+        mCurrentView = mRotatedViews[rot];
         mCurrentView.setVisibility(View.VISIBLE);
+
         if (NavbarEditor.isDevicePhone(mContext)) {
             int rotation = mDisplay.getRotation();
             mVertical = rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270;

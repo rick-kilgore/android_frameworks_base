@@ -20,11 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.CanvasProperty;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.view.HardwareCanvas;
 import android.view.RenderNodeAnimator;
@@ -96,9 +92,8 @@ public class KeyButtonRipple extends Drawable {
             final float ry = horizontal ? cy : radius;
             final float corner = horizontal ? cy : cx;
 
-            canvas.drawRoundRect(cx - rx, cy - ry,
-                    cx + rx, cy + ry,
-                    corner, corner, p);
+            final RectF rect = new RectF(cx - rx, cy - ry, cx + rx, cy + ry);
+            canvas.drawRoundRect(rect, corner, corner, p);
         }
     }
 

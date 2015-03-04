@@ -16,23 +16,16 @@
 
 package com.android.systemui.statusbar.policy;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
-import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.android.internal.util.vanir.KeyButtonInfo;
 import com.android.internal.util.vanir.NavbarUtils;
-import com.android.internal.util.vanir.NavbarConstants;
 import com.android.internal.util.vanir.NavbarConstants.NavbarConstant;
 import com.android.internal.util.vanir.VanirActions;
 import com.android.systemui.R;
